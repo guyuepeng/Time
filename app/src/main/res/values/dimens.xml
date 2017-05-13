@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="cardview_size">44dp</dimen>
+    <dimen name="cardview_radius">22dp</dimen>
+    <dimen name="cardview_content_padding">0.5dp</dimen>
+    <dimen name="iv_cardview_size">22dp</dimen>
+    <dimen name="iv_cardview_size_cute">16dp</dimen>
+    <dimen name="cardview_marginBottom">25dp</dimen>
+    <dimen name="cardview_marginRight">16dp</dimen>
+
+    <dimen name="textsize_large">72sp</dimen>
+    <dimen name="textsize_normal">36sp</dimen>
+    <dimen name="textsize_small">28sp</dimen>
+    <dimen name="textsize_cute">8sp</dimen>
+
+    <dimen name="margin_cute">3dp</dimen>
+
+    <dimen name="textsize_small_settings">16sp</dimen>
+    <dimen name="text_margin_in_settings">5dp</dimen>
+    <dimen name="textsize_big_settings">18sp</dimen>
+    <dimen name="margin_ll_settings">3dp</dimen>
+    <dimen name="iv_check_size_settings">12dp</dimen>
+    <dimen name="margin_normal">16dp</dimen>
+
+    <dimen name="iv_size_splash">88dp</dimen>
+
+</resources>

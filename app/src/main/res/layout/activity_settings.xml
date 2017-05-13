@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:scrollbars="none">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/margin_normal"
+        android:orientation="vertical"
+        >
+        <!--称呼-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/textViewStyle_settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="我怎么称呼你"/>
+
+            <TextView
+                android:id="@+id/tv_username"
+                style="@style/textViewStyle_settings_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="李开心"/>
+        </LinearLayout>
+
+        <!--重要的日子-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/textViewStyle_settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="重要的时刻"/>
+
+            <TextView
+                android:id="@+id/tv_important_day"
+                style="@style/textViewStyle_settings_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="2016年05月18日"/>
+        </LinearLayout>
+
+        <!--喜欢那种字体-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/textViewStyle_settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="喜欢哪个字体"/>
+
+            <LinearLayout
+                android:id="@+id/ll_a"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="青庭体"/>
+
+                <ImageView
+                    android:id="@+id/iv_a"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_b"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="水滴体"/>
+
+                <ImageView
+                    android:id="@+id/iv_b"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_c"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="细黑体"/>
+
+                <ImageView
+                    android:id="@+id/iv_c"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_d"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="细圆体"/>
+
+                <ImageView
+                    android:id="@+id/iv_d"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+                />
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <!--显示模式-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/textViewStyle_settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="主页显示模式"/>
+
+            <LinearLayout
+                android:id="@+id/ll_a1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="以月为单位"/>
+
+                <ImageView
+                    android:id="@+id/iv_a1"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_b1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="以周为单位"/>
+
+                <ImageView
+                    android:id="@+id/iv_b1"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_c1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="以天数为单位"/>
+
+                <ImageView
+                    android:id="@+id/iv_c1"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_d1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="以小时为单位"/>
+
+                <ImageView
+                    android:id="@+id/iv_d1"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+                />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_e1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/textViewStyle_settings_content"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="以分钟为单位"/>
+
+                <ImageView
+                    android:id="@+id/iv_e1"
+                    android:layout_width="@dimen/iv_check_size_settings"
+                    android:layout_height="@dimen/iv_check_size_settings"
+                    android:layout_gravity="center"
+                    android:layout_margin="@dimen/text_margin_in_settings"
+                    android:src="@drawable/check"
+                    android:tint="@color/colorPrimary"
+                    android:visibility="invisible"/>
+                />
+            </LinearLayout>
+
+        </LinearLayout>
+        <!--检查更新-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
+                style="@style/textViewStyle_settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="检查更新"/>
+
+            <TextView
+                android:id="@+id/tv_current_version"
+                style="@style/textViewStyle_settings_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="版本号：v1.0（点击检查更新）"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/margin_ll_settings"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_copyright"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="36dp"
+                android:gravity="center"
+                android:text="Copyright©LTNS.All Rights Reserved."
+                android:textColor="@color/textColor_content_settings"
+                android:textSize="8sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
