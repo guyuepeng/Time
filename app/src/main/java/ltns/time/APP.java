@@ -6,6 +6,7 @@ import com.zhy.http.okhttp.OkHttpUtils;
 
 import java.util.concurrent.TimeUnit;
 
+import im.fir.sdk.FIR;
 import okhttp3.OkHttpClient;
 
 /**
@@ -23,7 +24,7 @@ public class APP extends Application {
                 .readTimeout(10000L, TimeUnit.MILLISECONDS)
                 //其他配置
                 .build();
-
+        FIR.init(this);
         OkHttpUtils.initClient(okHttpClient);
     }
 }

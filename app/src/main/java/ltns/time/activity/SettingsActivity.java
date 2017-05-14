@@ -29,7 +29,6 @@ import ltns.time.network.bean.VersionBean;
 import ltns.time.network.callback.CheckUpdateCallback;
 import ltns.time.utils.AppUtils;
 import ltns.time.utils.PreferencesUtils;
-import okhttp3.Call;
 
 /**
  * Created by guyuepeng on 2017/5/10.
@@ -191,21 +190,46 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void doCheckVersion() {
-        checkAndUpdateApp(new CheckUpdateCallback() {
+        AppUtils.checkUpdate(mContext, new CheckUpdateCallback() {
             @Override
-            public void onCheckError(Call call, Exception e, int id) {
-                Toast.makeText(mContext, "更新失败：" + e.getLocalizedMessage()
-                        , Toast.LENGTH_SHORT).show();
+            public void onCheckFailed(Exception e) {
+                Toast.makeText(mContext, "获取版本信息失败了：" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onIsLatestVersion(VersionBean mVersionBean) {
-                Toast.makeText(mContext, "当前版本就是最新的，不用更新了!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void doUpdateApp(VersionBean mVersionBean) {
-
+            public void onCheckSucceed(VersionBean mVersionBean) {
+                String versionCodeStr = mVersionBean.getVersion();
+                int versionCode = Integer.parseInt(versionCodeStr);
+                AlertDialog.Builder mDialog = new AlertDialog.Builder(mContext);
+                if (versionCode > AppUtils.getAppVersionCode(mContext)) {
+                    mDialog.setTitle("确认更新");
+                    mDialog.setMessage("更新日志："
+                            + (mVersionBean.getChangelog().length() == 0
+                            ? "应该更新了不少内容，具体改了什么作者也没说" : mVersionBean.getChangelog()));
+                    mDialog.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppUtils.doUpdate(mContext);
+                            dialog.dismiss();
+                        }
+                    });
+                    mDialog.setNegativeButton("等等再说", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                } else {
+                    mDialog.setTitle("版本更新信息");
+                    mDialog.setMessage("当前版本就是最新的了,不用再更新了");
+                    mDialog.setPositiveButton("好的哥", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    });
+                }
+                mDialog.show();
             }
         });
 
@@ -236,7 +260,7 @@ public class SettingsActivity extends BaseActivity {
                 Log.i("-->", date + "-?>-" + new Date());
                 //TODO:check
                 if (date.after(new Date())) {
-                    Toast.makeText(mContext, "设置失败，这个重要时刻还没到来:D", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, "设置失败，这个重要时刻还没到来吧:D", Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Calendar mC = Calendar.getInstance();

@@ -1,9 +1,20 @@
 package ltns.time.utils;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.widget.Toast;
+
+import com.google.gson.Gson;
+
+import im.fir.sdk.FIR;
+import im.fir.sdk.VersionCheckCallback;
+import ltns.time.api.Config;
+import ltns.time.service.UpdateService;
+import ltns.time.network.bean.VersionBean;
+import ltns.time.network.callback.CheckUpdateCallback;
 
 /**
  * Created by guyuepeng on 2017/5/12.
@@ -37,5 +48,35 @@ public class AppUtils {
             Log.e("VersionInfo", "Exception", e);
         }
         return versionCode;
+    }
+
+    public static void checkUpdate(final Context mContext, final CheckUpdateCallback mCallback){
+        FIR.checkForUpdateInFIR(Config.FIR_KEY , new VersionCheckCallback() {
+            @Override
+            public void onSuccess(String versionJson) {
+                VersionBean mVersionBean=new Gson().fromJson(versionJson,VersionBean.class);
+                PreferencesUtils.put(mContext,Config.SharePreference.KEY_UPDATE_DOWNLOAD_URL,mVersionBean.getInstallUrl());
+                mCallback.onCheckSucceed(mVersionBean);
+            }
+
+            @Override
+            public void onFail(Exception exception) {
+                Log.i("fir", "check fir.im fail! " + "\n" + exception.getMessage());
+                mCallback.onCheckFailed(exception);
+            }
+
+            @Override
+            public void onStart() {
+                Toast.makeText(mContext, "检查版本信息...", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        });
+    }
+    public static void doUpdate(Context mContext){
+        Intent service = new Intent(mContext,UpdateService.class);
+        mContext.startService(service);
     }
 }

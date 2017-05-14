@@ -3,6 +3,7 @@ package ltns.time.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Environment;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -66,5 +67,13 @@ public class FileUtils {
         if (!file.exists()) {
             file.mkdirs();
         }
+    }
+
+    public static String getAppRootPath(){
+        String fileRootPath = Environment.getRootDirectory().getPath() + Config.DOWNLOAD_IMAGE_PATH;
+        if (FileUtils.existSDCard())
+            fileRootPath = Environment.getExternalStorageDirectory().getPath() + Config.DOWNLOAD_IMAGE_PATH;
+        FileUtils.makeRootDirectory(fileRootPath);
+        return fileRootPath;
     }
 }

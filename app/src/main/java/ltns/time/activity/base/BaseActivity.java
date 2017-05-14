@@ -18,14 +18,8 @@ import java.util.Calendar;
 
 import butterknife.ButterKnife;
 import ltns.time.api.Config;
-import ltns.time.network.bean.VersionBean;
-import ltns.time.network.callback.CheckUpdateCallback;
-import ltns.time.network.callback.VersionCallback;
-import ltns.time.utils.AppUtils;
-import ltns.time.utils.NetUtils;
 import ltns.time.utils.PreferencesUtils;
 import ltns.time.utils.TypefaceUtil;
-import okhttp3.Call;
 
 import static java.util.Calendar.DATE;
 import static ltns.time.api.Config.TYPEFACE_CHANGE_ACTION;
@@ -156,22 +150,6 @@ public abstract class BaseActivity extends AppCompatActivity {
                 + mImportantDay.get(DATE) + "日" + mImportantDay.get(Calendar.HOUR_OF_DAY) + "时" + mImportantDay.get(Calendar.MINUTE) + "分";
     }
 
-    protected void checkAndUpdateApp(final CheckUpdateCallback mCallback) {
-        NetUtils.getVersionInfo(mContext, new VersionCallback() {
-            @Override
-            public void onError(Call call, Exception e, int id) {
-                mCallback.onCheckError(call, e, id);
-            }
-
-            @Override
-            public void onResponse(VersionBean response, int id) {
-                if (response.getVersionCode() > AppUtils.getAppVersionCode(mContext))
-                    mCallback.doUpdateApp(response);
-                else
-                    mCallback.onIsLatestVersion(response);
-            }
-        });
-    }
 
     @Override
     protected void onResume() {

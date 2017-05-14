@@ -12,6 +12,9 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="c9f7a32232e28b8e79995e8ab7f11787"/>
+        <meta-data
+            android:name="BUG_HD_SDK_GENERAL_KEY"
+            android:value="07f85be2d3f606fd623cf6be0363122a"/>
 
         <activity
             android:name=".activity.SplashActivity"
@@ -42,6 +45,7 @@
         </activity>
         <!--高德地图定位服务-->
         <service android:name="com.amap.api.location.APSService"></service>
+        <service android:name=".service.UpdateService"></service>
 
     </application>
 

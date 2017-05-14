@@ -37,4 +37,6 @@ dependencies {
     //高德地图定位sdk
     compile 'com.amap.api:location:latest.integration'
     compile 'com.github.Kunzisoft:Android-SwitchDateTimePicker:1.6'
+
+    compile 'im.fir:fir-sdk:latest.integration@aar'
 }

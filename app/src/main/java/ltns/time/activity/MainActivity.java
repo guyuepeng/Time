@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.PowerManager;
 import android.support.v7.widget.CardView;
 import android.util.Log;
@@ -157,7 +156,7 @@ public class MainActivity extends BaseActivity {
             public void onResponse(RandomUnsplashBean response, int id) {
                 //将对应的下载地址存在本地
                 PreferencesUtils.saveDownloadUrl(mContext, response.getLinks().getDownload());
-                PreferencesUtils.saveAuthorInfo(mContext,response.getUser().getUsername());
+                PreferencesUtils.saveAuthorInfo(mContext, response.getUser().getUsername());
                 //获取显示图片的地址，加载到本地缓存，并显示
                 String url = response.getUrls().getRegular();
                 NetUtils.getBitmap(MainActivity.this, url, new BitmapCallback() {
@@ -178,8 +177,8 @@ public class MainActivity extends BaseActivity {
 
     }
 
-    private void initAuthorInfo(){
-        mTvAuthor.setText("@"+PreferencesUtils.readAuthorInfo(mContext)+"/Unsplash");
+    private void initAuthorInfo() {
+        mTvAuthor.setText("@" + PreferencesUtils.readAuthorInfo(mContext) + "/Unsplash");
     }
 
     private void saveCacheAndSetImageRes(Bitmap response) {
@@ -232,13 +231,10 @@ public class MainActivity extends BaseActivity {
         final PowerManager.WakeLock mWakeLock = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, tag);
         mWakeLock.acquire();
 
-        String fileRootPath = Environment.getRootDirectory().getPath() + Config.DOWNLOAD_IMAGE_PATH;
-        if (FileUtils.existSDCard())
-            fileRootPath = Environment.getExternalStorageDirectory().getPath() + Config.DOWNLOAD_IMAGE_PATH;
-        FileUtils.makeRootDirectory(fileRootPath);
+
         mCardviewDownload.setClickable(false);//避免重复下载
 
-        NetUtils.downloadFile(mContext, downloadUrl, new FileCallBack(fileRootPath, Config.DOWNLOAD_IMAGE_NAME) {
+        NetUtils.downloadFile(mContext, downloadUrl, new FileCallBack(FileUtils.getAppRootPath(), Config.DOWNLOAD_IMAGE_NAME) {
             @Override
             public void onError(Call call, Exception e, int id) {
                 //取消屏幕常亮

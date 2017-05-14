@@ -1,5 +1,7 @@
 package ltns.time.api;
 
+import android.os.Environment;
+
 /**
  * Created by guyuepeng on 2017/5/9.
  */
@@ -7,12 +9,14 @@ public interface Config {
 
     String BITMAP_CACHE_NAME = "backgroundBitmapCache";//缓存的文件名
     String DOWNLOAD_IMAGE_NAME = "time_" + System.currentTimeMillis() + ".jpeg";//下载的文件名
-    String DOWNLOAD_IMAGE_PATH = "/timeDownload/";//下载文件的存储路径
+    String DOWNLOAD_IMAGE_PATH = Environment.getRootDirectory().getPath() + "/timeDownload/";//下载文件的存储路径
 
     //appSettings
     String TYPEFACE_CHANGE_ACTION = "typefaceChange";
+
     String VERSION_INFO_URL = "https://github.com/guyuepeng/Time/blob/master/version.json";
 
+    String FIR_KEY = "02a42fec9854a370d0800a2802ac1995";
 
     interface SharePreference {
         String SP_FILENAME = "usSettings";
@@ -31,6 +35,8 @@ public interface Config {
         String SP_DEFAULT_USERNAME="小傻瓜";
 
         String KEY_AUTHOR_INFO = "author_info";
+
+        String KEY_UPDATE_DOWNLOAD_URL="downloadUrl";
     }
 
     interface Weather {
