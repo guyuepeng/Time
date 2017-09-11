@@ -1,15 +1,20 @@
 package ltns.time.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
+import android.support.v4.content.FileProvider;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.zhy.http.okhttp.callback.FileCallBack;
 
 import java.io.File;
 
+import ltns.time.R;
 import ltns.time.api.Config;
 import ltns.time.utils.FileUtils;
 import ltns.time.utils.NetUtils;
@@ -17,6 +22,7 @@ import ltns.time.utils.PreferencesUtils;
 import okhttp3.Call;
 
 public class UpdateService extends Service {
+
 
     public UpdateService() {
 
@@ -27,25 +33,27 @@ public class UpdateService extends Service {
         super.onCreate();
     }
 
-    /**
-     * 初始化下载器
-     **/
+    private String apkSavePath = FileUtils.getAppRootPath() + "apk/";
+    private String apkName = "Time.apk";
+
     private void startDownload() {
 
-        Toast.makeText(this, "开始更新", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, getString(R.string.startDownload), Toast.LENGTH_SHORT).show();
         //设置下载地址  
         String urlPath = PreferencesUtils.getString(this, Config.SharePreference.KEY_UPDATE_DOWNLOAD_URL);
-        NetUtils.downloadFile(getBaseContext(), urlPath, new FileCallBack(FileUtils.getAppRootPath() + "apk/", "time.apk") {
+        NetUtils.downloadFile(getBaseContext(), urlPath, new FileCallBack(apkSavePath, apkName) {
             @Override
             public void onError(Call call, Exception e, int id) {
-                Toast.makeText(UpdateService.this, "下载新版本应用" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(UpdateService.this, getString(R.string.updateError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                stopSelf();
             }
 
             @Override
             public void onResponse(File response, int id) {
 
-                Toast.makeText(UpdateService.this, "下载完成，开始自动安装", Toast.LENGTH_SHORT).show();
-                installApk(response);
+                Log.i("--->", "done");
+                Toast.makeText(UpdateService.this, getString(R.string.updateSuccess), Toast.LENGTH_SHORT).show();
+                installApkFile(UpdateService.this, apkSavePath + apkName);
             }
         });
 
@@ -53,40 +61,34 @@ public class UpdateService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // 调用下载  
+        // start
         startDownload();
         return super.onStartCommand(intent, flags, startId);
     }
 
+
     @Override
     public IBinder onBind(Intent intent) {
-
         return null;
     }
 
-
-    //安装apk
-    private void installApkNew(Uri uri) {
-        Intent intent = new Intent();
-        //执行动作
-        intent.setAction(Intent.ACTION_VIEW);
-        //执行的数据类型
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(uri, "application/vnd.android.package-archive");
-        //不加下面这句话是可以的，查考的里面说如果不加上这句的话在apk安装完成之后点击单开会崩溃
-        // android.os.Process.killProcess(android.os.Process.myPid());
-        try {
-            startActivity(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void installApk(File file) {
+    /**
+     * 兼容N版本之后的Uri.fromFile不支持
+     * Thanks：http://www.cnblogs.com/yongdaimi/p/6067319.html
+     *
+     * @param context
+     * @param filePath
+     */
+    public static void installApkFile(Context context, String filePath) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
-        startActivity(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Uri contentUri = FileProvider.getUriForFile(context, "ltns.time.fileprovider", new File(filePath));
+            intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        } else {
+            intent.setDataAndType(Uri.fromFile(new File(filePath)), "application/vnd.android.package-archive");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        context.startActivity(intent);
     }
-
 }  

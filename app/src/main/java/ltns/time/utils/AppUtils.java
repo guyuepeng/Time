@@ -55,6 +55,7 @@ public class AppUtils {
             @Override
             public void onSuccess(String versionJson) {
                 VersionBean mVersionBean=new Gson().fromJson(versionJson,VersionBean.class);
+                Log.i("--->", mVersionBean.getInstallUrl());
                 PreferencesUtils.put(mContext,Config.SharePreference.KEY_UPDATE_DOWNLOAD_URL,mVersionBean.getInstallUrl());
                 mCallback.onCheckSucceed(mVersionBean);
             }

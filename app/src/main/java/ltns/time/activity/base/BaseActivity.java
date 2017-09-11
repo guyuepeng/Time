@@ -7,7 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.WindowManager;
+import android.view.View;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -16,7 +16,7 @@ import com.amap.api.location.AMapLocationListener;
 
 import java.util.Calendar;
 
-import butterknife.ButterKnife;
+import ltns.time.R;
 import ltns.time.api.Config;
 import ltns.time.utils.PreferencesUtils;
 import ltns.time.utils.TypefaceUtil;
@@ -32,7 +32,7 @@ import static ltns.time.api.Config.TYPEFACE_CHANGE_ACTION;
 public abstract class BaseActivity extends AppCompatActivity {
     protected Context mContext;
     protected int diffOpinion;//显示的形式
-    protected String username;//用户昵称
+    protected String username;//nickname
     protected String typeface;//字体
     protected Calendar mImportantDay;//重要的时刻
     protected String importantDate;
@@ -44,14 +44,12 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(getLayoutRes());
-        ButterKnife.bind(this);
-
         mContext = BaseActivity.this;
-
     }
+
 
     //声明AMapLocationClient类对象
     private AMapLocationClient mLocationClient = null;
@@ -78,7 +76,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         initAMapLocation(new AMapLocationListener() {
             @Override
             public void onLocationChanged(AMapLocation aMapLocation) {
-//                Log.i("-->", aMapLocation.getErrorInfo() + aMapLocation.getLatitude() + "-" + aMapLocation.getLongitude());
+//      Log.i("-->", aMapLocation.getErrorInfo() + aMapLocation.getLatitude() + "-" + aMapLocation.getLongitude());
                 mLocationListener.onLocationChanged(aMapLocation);
                 //获取到定位信息后将定位服务关闭
                 mLocationClient.onDestroy();
@@ -105,7 +103,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
 
     /**
-     * 字体改变
+     * doChangeTypeface
      */
     protected void onTypefaceChange(String typeface) {
         TypefaceUtil.replaceFont(this, typeface);
@@ -118,7 +116,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             if (TYPEFACE_CHANGE_ACTION.equals(intent.getAction())) {
-                String typeface = intent.getStringExtra("typeface");
+                String typeface = intent.getStringExtra(getStrRes(R.string.typeface));
                 //改变未销毁尚存在的Activity的字体
                 onTypefaceChange(typeface);
             }
@@ -146,10 +144,16 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected void initImportantDate() {
         mImportantDay = PreferencesUtils.readCalendar(mContext);
-        importantDate = mImportantDay.get(Calendar.YEAR) + "年" + (mImportantDay.get(Calendar.MONTH) + 1) + "月"
-                + mImportantDay.get(DATE) + "日" + mImportantDay.get(Calendar.HOUR_OF_DAY) + "时" + mImportantDay.get(Calendar.MINUTE) + "分";
+        importantDate = mImportantDay.get(Calendar.YEAR) + getStrRes(R.string.year)
+                + (mImportantDay.get(Calendar.MONTH) + 1) + getStrRes(R.string.month)
+                + mImportantDay.get(DATE) + getStrRes(R.string.date)
+                + mImportantDay.get(Calendar.HOUR_OF_DAY) + getStrRes(R.string.hour)
+                + mImportantDay.get(Calendar.MINUTE) + getStrRes(R.string.minute);
     }
 
+    protected String getStrRes(int strResId) {
+        return getResources().getText(strResId).toString();
+    }
 
     @Override
     protected void onResume() {
@@ -158,6 +162,16 @@ public abstract class BaseActivity extends AppCompatActivity {
         initTypeface();
         initUsername();
         initImportantDate();
+        //保证状态栏和导航栏隐藏
+        //fix:从后台回到前台时状态栏和导航栏不隐藏问题
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
     }
 
 

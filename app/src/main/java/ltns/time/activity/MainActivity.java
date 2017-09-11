@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.zhy.http.okhttp.callback.BitmapCallback;
 import com.zhy.http.okhttp.callback.FileCallBack;
 
 import java.io.File;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,15 +33,19 @@ import ltns.time.R;
 import ltns.time.activity.base.BaseActivity;
 import ltns.time.api.Config;
 import ltns.time.network.ParamsBuilder;
+import ltns.time.network.bean.ListUnsplashBean;
 import ltns.time.network.bean.RandomUnsplashBean;
 import ltns.time.network.bean.WeatherBean;
+import ltns.time.network.callback.ListUnsplashCallback;
 import ltns.time.network.callback.RandomUnsplashCallback;
 import ltns.time.network.callback.WeatherCallback;
+import ltns.time.utils.ColorUtils;
 import ltns.time.utils.DateUtils;
 import ltns.time.utils.FileUtils;
 import ltns.time.utils.NetUtils;
 import ltns.time.utils.PreferencesUtils;
 import okhttp3.Call;
+import okhttp3.Request;
 
 
 public class MainActivity extends BaseActivity {
@@ -71,25 +77,12 @@ public class MainActivity extends BaseActivity {
     LinearLayout mLlHeader;
     @BindView(R.id.tv_author)
     TextView mTvAuthor;
+    @BindView(R.id.progressBar)
+    ContentLoadingProgressBar mProgressBar;
 
     private Bitmap mBackground;
-    private Thread childThread;//负责无限循环更新TextView内容
 
-    private RotateAnimation mRotateAnimation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF,
-            0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-
-    private static final int ANI_DURATION = 1000;
-
-    private void startAni() {
-        mRotateAnimation.setDuration(ANI_DURATION);//设置动画持续时间
-        mRotateAnimation.setRepeatCount(50);//设置重复次数
-        mIvRefresh.startAnimation(mRotateAnimation);
-    }
-
-    private void stopAni(Animation mAnimation) {
-        mAnimation.cancel();
-    }
-
+    private boolean downloadFlag = false;
 
     @Override
     protected int getLayoutRes() {
@@ -100,46 +93,62 @@ public class MainActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
+        downloadFlag = Config.SharePreference.DOWNLOAD_FLAG_OK
+                .equals(PreferencesUtils.readDownloadFlag(mContext));
+        initLocation();
         initBackground();
-        startLocation(mAMapLocationListener);
 
     }
+
+    /**
+     * 初始化位置信息，加载天气状况
+     */
+    private void initLocation() {
+        startLocation(mAMapLocationListener);
+    }
+
 
     private AMapLocationListener mAMapLocationListener = new AMapLocationListener() {
         @Override
         public void onLocationChanged(AMapLocation aMapLocation) {
-            //经纬度 例如：location=39.93:116.40（纬度前经度在后，冒号分隔）
+            //example：location=39.93:116.40（Latitude:Longitude）
             String locationInfo = aMapLocation.getLatitude() + ":" + aMapLocation.getLongitude();
             NetUtils.getNowWeatherInfo(mContext, locationInfo, new WeatherCallback() {
                 @Override
                 public void onError(Call call, Exception e, int id) {
-                    doNotGetWeatherInfo(e);
+                    doNotGotWeatherInfo(e);
                 }
 
                 @Override
                 public void onResponse(WeatherBean response, int id) {
-                    doGetWeatherInfo(response);
+                    doGotWeatherInfo(response);
                 }
             });
         }
     };
 
-    private void doNotGetWeatherInfo(Exception e) {
+    private void doNotGotWeatherInfo(Exception e) {
         mIvWeather.setImageResource(R.drawable.n99);
-        mTvTemp.setText("获取定位失败");
+        mTvTemp.setText(getStrRes(R.string.getLocationError));
+        Toast.makeText(mContext, getStrRes(R.string.weather_error) + e.getMessage(), Toast.LENGTH_SHORT).show();
     }
 
-    private void doGetWeatherInfo(WeatherBean response) {
+    private void doGotWeatherInfo(WeatherBean response) {
         String weatherCode = response.weatherCode;
         int resID = getResources().getIdentifier("n" + weatherCode, "drawable", getPackageName());
         Drawable image = getResources().getDrawable(resID);
         mIvWeather.setImageDrawable(image);
-        mTvTemp.setText(response.temperature + "℃");
+        mTvTemp.setText("");
+        //心知天气api气温获取不准确
+//        mTvTemp.setText(response.temperature + "℃");
 
     }
 
 
-    private void loadNewBackground() {
+    /**
+     * 随机加载图片
+     */
+    private void loadRandomBGImage() {
         mCardviewRefresh.setClickable(false);
         startAni();
 
@@ -148,21 +157,77 @@ public class MainActivity extends BaseActivity {
         NetUtils.get(Config.UnSplash.UNSPLASH_HOST + Config.UnSplash.UNSPLASH_RANDOM, mBuilder, new RandomUnsplashCallback() {
             @Override
             public void onError(Call call, Exception e, int id) {
-                Toast.makeText(mContext, "获取图片资源失败:" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, getStrRes(R.string.getImgError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 resetCardviewStatusAfterRefresh(false);
             }
 
             @Override
             public void onResponse(RandomUnsplashBean response, int id) {
-                //将对应的下载地址存在本地
+                //save downloadUrl and imageMainColor
                 PreferencesUtils.saveDownloadUrl(mContext, response.getLinks().getDownload());
+                PreferencesUtils.saveImageMainColor(mContext, response.getColor());
                 PreferencesUtils.saveAuthorInfo(mContext, response.getUser().getUsername());
-                //获取显示图片的地址，加载到本地缓存，并显示
+                //save cache and set ImageRes
                 String url = response.getUrls().getRegular();
                 NetUtils.getBitmap(MainActivity.this, url, new BitmapCallback() {
                     @Override
                     public void onError(Call call, Exception e, int id) {
-                        Toast.makeText(mContext, "加载图片失败:" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(mContext, getStrRes(R.string.loadImgError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        resetCardviewStatusAfterRefresh(false);
+                    }
+
+                    @Override
+                    public void onResponse(Bitmap response, int id) {
+                        saveCacheAndSetImageRes(response);
+                        resetCardviewStatusAfterRefresh(true);
+                    }
+                });
+            }
+        });
+
+    }
+
+    /**
+     * 根据喜好加载图片
+     */
+    @Deprecated
+    private void loadBGImageByFavour() {
+        mCardviewRefresh.setClickable(false);
+        startAni();
+
+        ParamsBuilder mBuilder = new ParamsBuilder();
+        mBuilder.addParams("client_id", Config.UnSplash.UNSPLASH_APP_ID);
+        NetUtils.get(Config.UnSplash.UNSPLASH_HOST + Config.UnSplash.UNSPLASH_PHOTOS, mBuilder, new ListUnsplashCallback() {
+            @Override
+            public void onError(Call call, Exception e, int id) {
+                Toast.makeText(mContext, getStrRes(R.string.getImgError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                resetCardviewStatusAfterRefresh(false);
+            }
+
+            @Override
+            public void onResponse(List<ListUnsplashBean> response, int id) {
+                ListUnsplashBean bestBean = response.get(0);
+                double bestRate = ColorUtils.rateColor2Favour(mContext, bestBean.getColor());
+                for (ListUnsplashBean mUnsplashBean : response) {
+                    Log.e("------>", "url" + mUnsplashBean.getLinks().getDownload());
+                    if (bestRate < ColorUtils.rateColor2Favour(mContext, mUnsplashBean.getColor()))
+                        continue;
+                    bestBean = mUnsplashBean;
+                    bestRate = ColorUtils.rateColor2Favour(mContext, mUnsplashBean.getColor());
+                }
+                Log.i("------>", "url" + bestBean.getLinks().getDownload());
+
+                //执行到此处bestRate最优
+                //save downloadUrl and imageMainColor
+                PreferencesUtils.saveDownloadUrl(mContext, bestBean.getLinks().getDownload());
+                PreferencesUtils.saveImageMainColor(mContext, bestBean.getColor());
+                PreferencesUtils.saveAuthorInfo(mContext, bestBean.getUser().getUsername());
+                //save cache and set ImageRes
+                String url = bestBean.getUrls().getRegular();
+                NetUtils.getBitmap(MainActivity.this, url, new BitmapCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        Toast.makeText(mContext, getStrRes(R.string.loadImgError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         resetCardviewStatusAfterRefresh(false);
                     }
 
@@ -190,12 +255,16 @@ public class MainActivity extends BaseActivity {
 
     private void initBackground() {
         if (!FileUtils.hasBitmapCache(mContext)) {
-            loadNewBackground();
+            loadRandomBGImage();
             return;
         }
-        initAuthorInfo();//显示作者信息
+        initAuthorInfo();//show author info
         mBackground = FileUtils.loadBitmapCache(mContext);
         mIvBackground.setImageBitmap(mBackground);
+        if (downloadFlag) {
+            mIvDownload.setImageResource(R.drawable.download_ok);
+            mCardviewDownload.setClickable(false);
+        }
     }
 
 
@@ -203,9 +272,10 @@ public class MainActivity extends BaseActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.cardview_refresh:
-                loadNewBackground();
+                loadRandomBGImage();
                 break;
             case R.id.cardview_download:
+//                saveUserFavourInfo();
                 doDownload();
                 break;
             case R.id.cardview_settings:
@@ -217,14 +287,20 @@ public class MainActivity extends BaseActivity {
         }
     }
 
+    @Deprecated
+    private void saveUserFavourInfo() {
+        String color = PreferencesUtils.readImageMainColor(mContext);
+        PreferencesUtils.saveUserFavour(mContext, color);
+    }
+
     private void doDownload() {
         String downloadUrl = PreferencesUtils.readDownloadUrl(mContext);
         if (downloadUrl == null || downloadUrl.equals("")) {
             mCardviewDownload.setClickable(true);//失败后允许再次尝试下载
-            Toast.makeText(mContext, "未拉取到下载地址，已取消下载", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, getStrRes(R.string.getDownloadUrlError), Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(mContext, "开始下载", Toast.LENGTH_SHORT).show();
+        Toast.makeText(mContext, getStrRes(R.string.startDownload), Toast.LENGTH_SHORT).show();
         //启动屏幕常亮
         final String tag = "mPowerTag";
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -232,23 +308,47 @@ public class MainActivity extends BaseActivity {
         mWakeLock.acquire();
 
 
-        mCardviewDownload.setClickable(false);//避免重复下载
+        mCardviewDownload.setClickable(false);//avoid downloading again
 
-        NetUtils.downloadFile(mContext, downloadUrl, new FileCallBack(FileUtils.getAppRootPath(), Config.DOWNLOAD_IMAGE_NAME) {
+        String imageUrl = PreferencesUtils.readDownloadUrl(mContext);
+
+        NetUtils.downloadFile(mContext, downloadUrl, new FileCallBack(FileUtils.getAppRootPath()
+                , imageUrl.hashCode() + ".png") {
+            @Override
+            public void onBefore(Request request, int id) {
+                super.onBefore(request, id);
+                mProgressBar.setMax(100);
+                mProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAfter(int id) {
+                super.onAfter(id);
+                mProgressBar.setVisibility(View.GONE);
+            }
+
             @Override
             public void onError(Call call, Exception e, int id) {
                 //取消屏幕常亮
                 mWakeLock.release();
-                mCardviewDownload.setClickable(true);//失败后允许再次尝试下载
-                Toast.makeText(mContext, "图片下载失败：" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                Log.i("-->", "onError: " + e.getLocalizedMessage());
+                mCardviewDownload.setClickable(true);//allow to download after error
+                Toast.makeText(mContext, getStrRes(R.string.downloadImgError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Log.i("-->", "download Image onError: " + e.getLocalizedMessage());
+            }
+
+            @Override
+            public void inProgress(float progress, long total, int id) {
+                super.inProgress(progress, total, id);
+                mProgressBar.setProgress(((int) (progress * 100)));
             }
 
             @Override
             public void onResponse(File response, int id) {
                 //取消屏幕常亮
                 mWakeLock.release();
-                Toast.makeText(mContext, "下载完成", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, getStrRes(R.string.downloadFinish), Toast.LENGTH_SHORT).show();
+                PreferencesUtils.saveDownloadFlag(mContext, Config.SharePreference.DOWNLOAD_FLAG_OK);
+                downloadFlag = true;
                 mIvDownload.setImageResource(R.drawable.download_ok);
                 Intent intent =
                         new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
@@ -261,53 +361,19 @@ public class MainActivity extends BaseActivity {
 
     private void resetCardviewStatusAfterRefresh(boolean refreshSucceed) {
         mCardviewRefresh.setClickable(true);
-        //如果动画没停，先把动画停了
+        //if animation is playing, stop it first
         if (!mRotateAnimation.hasEnded())
             stopAni(mRotateAnimation);
-        //如果加载新图片失败了，则下载按钮的clickable状态不变，图片资源也不变
+        //if loading new Image failed,not reset the button state
         if (!refreshSucceed)
             return;
         mCardviewDownload.setClickable(true);
         mIvDownload.setImageResource(R.drawable.download);
+        PreferencesUtils.saveDownloadFlag(mContext, Config.SharePreference.DOWNLOAD_FLAG_NOT_OK);
+        downloadFlag = false;
         initTVContent();
     }
 
-    /*
-    //开启子线程循环更新TextView
-    private int updateDelay = 1000*60;//1s时间间隔
-    private boolean FLAG=true;//添加一个标志位，当Activity关闭时，将FLAG设置为false停止子线程中的任务
-    private Runnable updateTextView = new Runnable() {
-        @Override
-        public void run() {
-            while (FLAG) {
-                if (updateTextViewCompleted) {
-                    mHandler.sendEmptyMessageDelayed(UPDATE_TEXTVIEW, updateDelay);
-                    updateTextViewCompleted = false;
-                }
-            }
-        }
-    };
-    private static final int UPDATE_TEXTVIEW = 1;
-    private boolean updateTextViewCompleted = true;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case UPDATE_TEXTVIEW:
-                    mTvContent.setText(getTextViewContent(diffOpinion));
-                    updateTextViewCompleted = true;
-                    break;
-            }
-        }
-    };
-    private void startChildThread() {
-        if (childThread!=null&&childThread.isAlive()&&FLAG)
-            return;
-        childThread=new Thread(updateTextView);
-        childThread.start();
-    }
-    */
     @Override
     protected void onResume() {
         super.onResume();
@@ -318,7 +384,7 @@ public class MainActivity extends BaseActivity {
     protected void startLocation(AMapLocationListener mLocationListener) {
         super.startLocation(mLocationListener);
         mIvWeather.setImageResource(R.drawable.n99);
-        mTvTemp.setText("正在查询...");
+        mTvTemp.setText(getStrRes(R.string.querying));
     }
 
     private void initTVContent() {
@@ -341,7 +407,6 @@ public class MainActivity extends BaseActivity {
         if (mRotateAnimation != null && !mRotateAnimation.hasEnded()) {
             mRotateAnimation.cancel();
         }
-//        FLAG=false;//停止子线程中的任务
 
     }
 
@@ -351,9 +416,28 @@ public class MainActivity extends BaseActivity {
     public void onBackPressed() {
         if ((System.currentTimeMillis() - exitTime) > 2000) {
             exitTime = System.currentTimeMillis();
-            Toast.makeText(mContext, "再来一下退出应用", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, getStrRes(R.string.exitAppToast), Toast.LENGTH_SHORT).show();
         } else {
             super.onBackPressed();
         }
     }
+
+
+    //动画部分
+    private RotateAnimation mRotateAnimation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF,
+            0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+
+    private static final int ANI_DURATION = 1000;
+
+    private void startAni() {
+        mRotateAnimation.setDuration(ANI_DURATION);//animation duration
+        mRotateAnimation.setRepeatCount(50);//repeat time
+        mIvRefresh.startAnimation(mRotateAnimation);
+    }
+
+    private void stopAni(Animation mAnimation) {
+        mAnimation.cancel();
+    }
+
+
 }

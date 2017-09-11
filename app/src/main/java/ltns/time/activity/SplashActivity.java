@@ -118,7 +118,6 @@ public class SplashActivity extends BaseActivity {
 
 
     /**
-     * textView的透明度变大
      *
      * @param view
      * @param animationListener
@@ -133,7 +132,6 @@ public class SplashActivity extends BaseActivity {
     }
 
     /**
-     * textView的透明度变小
      *
      * @param view
      * @param animationListener

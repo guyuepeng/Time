@@ -99,12 +99,12 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private void initVersion() {
-        mTvCurrentVersion.setText("版本号：v" + AppUtils.getAppVersionName(mContext) + "（点击检查更新）");
+        mTvCurrentVersion.setText(getStrRes(R.string.versionStr) + AppUtils.getAppVersionName(mContext) + getStrRes(R.string.checkVersion));
     }
 
 
     /**
-     * 设置字体的同时将更改过的字体存起来
+     * set Typeface and save the setting
      *
      * @param typefaceIndex
      */
@@ -193,7 +193,7 @@ public class SettingsActivity extends BaseActivity {
         AppUtils.checkUpdate(mContext, new CheckUpdateCallback() {
             @Override
             public void onCheckFailed(Exception e) {
-                Toast.makeText(mContext, "获取版本信息失败了：" + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(mContext, getStrRes(R.string.getVersionError) + e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -202,27 +202,27 @@ public class SettingsActivity extends BaseActivity {
                 int versionCode = Integer.parseInt(versionCodeStr);
                 AlertDialog.Builder mDialog = new AlertDialog.Builder(mContext);
                 if (versionCode > AppUtils.getAppVersionCode(mContext)) {
-                    mDialog.setTitle("确认更新");
-                    mDialog.setMessage("更新日志："
+                    mDialog.setTitle(getStrRes(R.string.confirmUpdate));
+                    mDialog.setMessage(getStrRes(R.string.updateLog)
                             + (mVersionBean.getChangelog().length() == 0
-                            ? "应该更新了不少内容，具体改了什么作者也没说" : mVersionBean.getChangelog()));
-                    mDialog.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                            ? getStrRes(R.string.defaultUpdateLog) : mVersionBean.getChangelog()));
+                    mDialog.setPositiveButton(getStrRes(R.string.doUpdate), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             AppUtils.doUpdate(mContext);
                             dialog.dismiss();
                         }
                     });
-                    mDialog.setNegativeButton("等等再说", new DialogInterface.OnClickListener() {
+                    mDialog.setNegativeButton(getStrRes(R.string.doNotUpdate), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
                         }
                     });
                 } else {
-                    mDialog.setTitle("版本更新信息");
-                    mDialog.setMessage("当前版本就是最新的了,不用再更新了");
-                    mDialog.setPositiveButton("好的哥", new DialogInterface.OnClickListener() {
+                    mDialog.setTitle(getStrRes(R.string.notNeedUpdateDialogTitle));
+                    mDialog.setMessage(getStrRes(R.string.notNeedUpdateLog));
+                    mDialog.setPositiveButton(getStrRes(R.string.notNeedUpdateConfirm), new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
@@ -239,9 +239,9 @@ public class SettingsActivity extends BaseActivity {
         //  https://github.com/Kunzisoft/Android-SwitchDateTimePicker
         // Initialize
         SwitchDateTimeDialogFragment dateTimeFragment = SwitchDateTimeDialogFragment.newInstance(
-                "重要的时刻",
-                "确定",
-                "取消"
+                getStrRes(R.string.dateDialogTitle),
+                getStrRes(R.string.dateDialogConfirm),
+                getStrRes(R.string.dateDialogCancel)
         );
         // Assign values
         dateTimeFragment.startAtCalendarView();
@@ -256,11 +256,9 @@ public class SettingsActivity extends BaseActivity {
             @Override
             public void onPositiveButtonClick(Date date) {
                 // Date is get on positive button click
-                // Do something
                 Log.i("-->", date + "-?>-" + new Date());
-                //TODO:check
                 if (date.after(new Date())) {
-                    Toast.makeText(mContext, "设置失败，这个重要时刻还没到来吧:D", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(mContext, getStrRes(R.string.dateOverNow), Toast.LENGTH_SHORT).show();
                     return;
                 }
                 Calendar mC = Calendar.getInstance();
@@ -284,16 +282,16 @@ public class SettingsActivity extends BaseActivity {
         final EditText usernameEt = (EditText) dialogView.findViewById(R.id.et_username);
         usernameEt.setText(username);
         usernameEt.setSelection(username.length());
-        mBuilder.setTitle("我怎么称呼你");
+        mBuilder.setTitle(getStrRes(R.string.how2CallU));
         mBuilder.setView(dialogView);
-        mBuilder.setPositiveButton("叫这个", new DialogInterface.OnClickListener() {
+        mBuilder.setPositiveButton(getStrRes(R.string.usernameConfirm), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 setUserName(usernameEt.getText().toString());
                 dialog.dismiss();
             }
         });
-        mBuilder.setNegativeButton("算了", new DialogInterface.OnClickListener() {
+        mBuilder.setNegativeButton(getStrRes(R.string.usernameCancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();

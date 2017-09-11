@@ -23,6 +23,15 @@
         android:textSize="@dimen/textsize_cute"
         />
 
+    <android.support.v4.widget.ContentLoadingProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="2.5dp"
+        android:layout_gravity="bottom"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:progressDrawable="@drawable/progress"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:id="@+id/ll_content"
         android:layout_width="match_parent"

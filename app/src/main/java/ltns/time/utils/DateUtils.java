@@ -24,8 +24,8 @@ public class DateUtils {
     public static long getDiffSecond(Context context) {
         Calendar then = PreferencesUtils.readCalendar(context);
         Calendar now = Calendar.getInstance();
-        Date currentDate=now.getTime();
-        Date importantDate=then.getTime();
+        Date currentDate = now.getTime();
+        Date importantDate = then.getTime();
         return currentDate.getTime() - importantDate.getTime();
     }
 
@@ -54,8 +54,8 @@ public class DateUtils {
         return diffMins + "";
     }
 
-    public static String getDiffStr(Context mContext,int opinion){
-        switch (opinion){
+    public static String getDiffStr(Context mContext, int opinion) {
+        switch (opinion) {
             case Config.DiffOpinion.DIFF_MIN:
                 return getDiffMins(mContext);
             case Config.DiffOpinion.DIFF_HOUR:
@@ -67,10 +67,11 @@ public class DateUtils {
             case Config.DiffOpinion.DIFF_MONTH:
                 return getDiffMonths(mContext);
         }
-        throw new RuntimeException(opinion+"不在范围内");
+        throw new RuntimeException(opinion + "不在范围内");
     }
-    public static String getUnit(int opinion){
-        switch (opinion){
+
+    public static String getUnit(int opinion) {
+        switch (opinion) {
             case Config.DiffOpinion.DIFF_MIN:
                 return "Mins";
             case Config.DiffOpinion.DIFF_HOUR:
@@ -82,6 +83,7 @@ public class DateUtils {
             case Config.DiffOpinion.DIFF_MONTH:
                 return "Months";
         }
-        throw new RuntimeException(opinion+"不在范围内");
+        throw new RuntimeException(opinion + "不在范围内");
     }
+
 }

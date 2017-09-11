@@ -8,7 +8,6 @@ import android.os.Environment;
 public interface Config {
 
     String BITMAP_CACHE_NAME = "backgroundBitmapCache";//缓存的文件名
-    String DOWNLOAD_IMAGE_NAME = "time_" + System.currentTimeMillis() + ".jpeg";//下载的文件名
     String DOWNLOAD_IMAGE_PATH = Environment.getRootDirectory().getPath() + "/timeDownload/";//下载文件的存储路径
 
     //appSettings
@@ -37,6 +36,12 @@ public interface Config {
         String KEY_AUTHOR_INFO = "author_info";
 
         String KEY_UPDATE_DOWNLOAD_URL="downloadUrl";
+        String KEY_IMAGE_MAIN_COLOR = "imageMainColor";
+        String KEY_USER_FAVOUR_INFO = "userFavouriteInfo";
+        String KEY_DOWNLOAD_FLAG = "downloadFlag";
+        String DOWNLOAD_FLAG_OK = "true";
+        String DOWNLOAD_FLAG_NOT_OK = "false";
+
     }
 
     interface Weather {
@@ -51,6 +56,7 @@ public interface Config {
         String UNSPLASH_APP_ID = "4df97b8e524ea4b5d4801b0643fb8199b2d8c510bc7d318b0413fb806e0b692f";
         String UNSPLASH_HOST = "https://api.unsplash.com";
         String UNSPLASH_RANDOM = "/photos/random?";
+        String UNSPLASH_PHOTOS = "/photos?";
     }
 
     interface Typeface {
